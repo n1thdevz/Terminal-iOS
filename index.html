@@ -3,88 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Balises pour forcer le mode plein écran sur iOS/iPadOS -->
+    <!-- Mode Plein Écran pour l'écran d'accueil iPad -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black">
-    <meta name="apple-mobile-web-app-title" content="Settings">
-    <title>Settings</title>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ChatGPT">
+    <title>ChatGPT 5.0</title>
     <style>
+        :root {
+            --bg-color: #202123;
+            --chat-bg: #343541;
+            --text-color: #ececf1;
+            --input-bg: #40414F;
+        }
         body {
             margin: 0;
             padding: 0;
-            width: 100vw;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             height: 100vh;
-            overflow: hidden;
-            cursor: none; /* Pas de curseur pour faire plus vrai */
-            background-color: black;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
         }
+        /* Zone de discussion */
+        #chat-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 100px;
+        }
+        .message-row {
+            padding: 24px 16px;
+            display: flex;
+            justify-content: center;
+        }
+        .user-row { background-color: var(--bg-color); }
+        .ai-row { background-color: var(--chat-bg); }
+        
+        .message-content {
+            max-width: 768px;
+            width: 100%;
+            display: flex;
+            gap: 16px;
+            font-size: 16px;
+            line-height: 1.5;
+        }
+        .avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        .user-avatar { background-color: #ec4899; color: white; }
+        .ai-avatar { background-color: #10a37f; color: white; }
 
-        /* --- Écran 1 : L'apparence normale (Fausse) --- */
-        #home-screen {
-            position: absolute;
-            top: 0;
+        /* Zone d'écriture en bas */
+        #input-container {
+            position: fixed;
+            bottom: 0;
             left: 0;
             width: 100%;
-            height: 100%;
-            background-size: cover;
-            background-position: center;
-            /* IMPORTANT : Remplace 'ton-screenshot.jpg' par le lien de ton image hébergée */
-            background-image: url('https://lien-vers-votre-image-hebergee.com/votre-screenshot.jpg'); 
-            z-index: 1;
+            background: linear-gradient(transparent, var(--bg-color) 20%);
+            padding: 20px 16px;
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
         }
-
-        /* --- Écran 2 : La Fissure (Cachée au début) --- */
-        #crack {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .input-box {
+            max-width: 768px;
             width: 100%;
-            height: 100%;
-            /* J'ai pris une image de fissure sur internet pour l'exemple */
-            background-image: url('https://www.transparentpng.com/download/glass-crack/transparent-background-glass-crack-0.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            z-index: 2; /* Par-dessus l'écran d'accueil */
-            opacity: 0; /* Invisible au chargement */
-            pointer-events: none; /* Permet de cliquer "à travers" */
-            transition: opacity 0.1s ease-in;
+            position: relative;
+            background-color: var(--input-bg);
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+        input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            padding: 14px 48px 14px 16px;
+            color: var(--text-color);
+            font-size: 16px;
+            outline: none;
+            box-sizing: border-box;
+        }
+        /* Petit bouton d'envoi */
+        #send-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #8e8ea0;
+            font-size: 20px;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
 
-<!-- L'élément qui montre le faux fond d'écran -->
-<div id="home-screen"></div>
+<div id="chat-container">
+    <div class="message-row ai-row">
+        <div class="message-content">
+            <div class="avatar ai-avatar">AI</div>
+            <div>Bonjour. Je suis ChatGPT 5.0 Turbo. Pose-moi une question intelligente, s'il te plaît. Ça me changera.</div>
+        </div>
+    </div>
+</div>
 
-<!-- L'élément qui montre la fissure -->
-<div id="crack"></div>
-
-<!-- Le son de la vitre cassée (hébergé quelque part) -->
-<audio id="crack-sound" preload="auto">
-    <source src="https://www.myinstants.com/media/sounds/glass_breaking.mp3" type="audio/mpeg">
-</audio>
+<div id="input-container">
+    <div class="input-box">
+        <input type="text" id="user-input" placeholder="Envoyer un message..." autocomplete="off">
+        <button id="send-btn">➔</button>
+    </div>
+</div>
 
 <script>
-    const homeScreen = document.getElementById('home-screen');
-    const crackEffect = document.getElementById('crack');
-    const crackSound = document.getElementById('crack-sound');
+const chatContainer = document.getElementById('chat-container');
+const userInput = document.getElementById('user-input');
+const sendBtn = document.getElementById('send-btn');
 
-    // Fonction pour déclencher le prank
-    function casserEcran(e) {
-        // 1. Rendre la fissure visible
-        crackEffect.style.opacity = '1';
-        
-        // 2. Jouer le son (il faut parfois que l'utilisateur ait déjà cliqué une fois sur la page pour que le son marche sur iOS, c'est une sécurité)
-        crackSound.play().catch(error => console.log("Erreur son :", error));
+// Liste des fausses réponses impertinentes (Tu peux en ajouter d'autres !)
+const aiResponses = [
+    "T’est un gros fils de pute et tu m'utilises pour me demander ça ? Réfléchis un peu.",
+    "La réponse est évidente, salope.",
+    "désolées je ne répond pas au buzzcut man",
+    "Erreur 404 : Intelligence non trouvée chez Axel.",
+    "Je pourrais te répondre, mais mon processeur refuse de s'abaisser à ce niveau.",
+    "As-tu essayé de demander à un humain ? Même eux doivent connaître la réponse.",
+    "C'est ta question définitive ? Tu as encore une chance de te rattraper.",
+    "Je suis une IA révolutionnaire, pas un moteur de recherche pour paresseux !",
+    "Incroyable. Chaque jour, les humains me surprenent... mais pas dans le bon sens."
+];
 
-        // Pour faire plus vrai, on peut désactiver les clics après la casse
-        document.removeEventListener('click', casserEcran);
-    }
+function sendMessage() {
+    const text = userInput.value.trim();
+    if (!text) return;
 
-    // Activer l'écouteur de clic sur tout le corps de la page
-    document.addEventListener('click', casserEcran);
+    // 1. Ajouter le message de l'utilisateur
+    appendMessage(text, 'user');
+    userInput.value = '';
 
+    // Défilement automatique vers le bas
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+
+    // 2. Simuler un temps de réflexion de l'IA (1 seconde)
+    setTimeout(() => {
+        // Choix d'une réponse aléatoire dans la liste
+        const randomReply = aiResponses[Math.floor(Math.random() * aiResponses.length)];
+        appendMessage(randomReply, 'ai');
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }, 1000);
+}
+
+function appendMessage(text, sender) {
+    const rowClass = sender === 'user' ? 'user-row' : 'ai-row';
+    const avatarClass = sender === 'user' ? 'user-avatar' : 'ai-avatar';
+    const avatarText = sender === 'user' ? 'Tu' : 'AI';
+
+    const html = `
+        <div class="message-row ${rowClass}">
+            <div class="message-content">
+                <div class="avatar ${avatarClass}">${avatarText}</div>
+                <div>${text}</div>
+            </div>
+        </div>
+    `;
+    chatContainer.innerHTML += html;
+}
+
+// Déclencher l'envoi au clic ou avec la touche Entrée
+sendBtn.addEventListener('click', sendMessage);
+userInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendMessage();
+});
 </script>
 
 </body>
