@@ -3,186 +3,163 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Mode Plein Écran pour l'écran d'accueil iPad -->
+    <!-- Configuration PWA Plein Écran pour l'iPad -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="ChatGPT">
-    <title>ChatGPT 5.0</title>
+    <meta name="apple-mobile-web-app-title" content="Kerbes-OSINT">
+    <title>Kerbes Toolbox OSINT</title>
     <style>
-        :root {
-            --bg-color: #202123;
-            --chat-bg: #343541;
-            --text-color: #ececf1;
-            --input-bg: #40414F;
-        }
         body {
+            background-color: #080b11;
+            color: #e2e8f0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            padding: 20px;
+            box-sizing: border-box;
             height: 100vh;
-            display: flex;
-            flex-direction: column;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: #111827;
+            border: 1px solid #1f2937;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        }
+        h1 {
+            color: #38bdf8;
+            font-size: 22px;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+        .subtitle {
+            color: #6b7280;
+            font-size: 13px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-size: 14px;
+            color: #9ca3af;
+            margin-bottom: 8px;
+        }
+        select, input {
+            width: 100%;
+            padding: 12px;
+            background: #030712;
+            border: 1px solid #374151;
+            color: white;
+            border-radius: 6px;
+            font-size: 15px;
             box-sizing: border-box;
-        }
-        /* Zone de discussion */
-        #chat-container {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding-bottom: 100px;
-        }
-        .message-row {
-            padding: 24px 16px;
-            display: flex;
-            justify-content: center;
-        }
-        .user-row { background-color: var(--bg-color); }
-        .ai-row { background-color: var(--chat-bg); }
-        
-        .message-content {
-            max-width: 768px;
-            width: 100%;
-            display: flex;
-            gap: 16px;
-            font-size: 16px;
-            line-height: 1.5;
-        }
-        .avatar {
-            width: 30px;
-            height: 30px;
-            border-radius: 2px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 12px;
-            flex-shrink: 0;
-        }
-        .user-avatar { background-color: #ec4899; color: white; }
-        .ai-avatar { background-color: #10a37f; color: white; }
-
-        /* Zone d'écriture en bas */
-        #input-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            background: linear-gradient(transparent, var(--bg-color) 20%);
-            padding: 20px 16px;
-            box-sizing: border-box;
-            display: flex;
-            justify-content: center;
-        }
-        .input-box {
-            max-width: 768px;
-            width: 100%;
-            position: relative;
-            background-color: var(--input-bg);
-            border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.1);
-        }
-        input {
-            width: 100%;
-            background: transparent;
-            border: none;
-            padding: 14px 48px 14px 16px;
-            color: var(--text-color);
-            font-size: 16px;
             outline: none;
-            box-sizing: border-box;
         }
-        /* Petit bouton d'envoi */
-        #send-btn {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: transparent;
+        select:focus, input:focus {
+            border-color: #38bdf8;
+        }
+        button {
+            width: 100%;
+            background: #0284c7;
+            color: white;
             border: none;
-            color: #8e8ea0;
-            font-size: 20px;
+            padding: 14px;
+            font-size: 16px;
+            border-radius: 6px;
             cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+        button:hover {
+            background: #0369a1;
+        }
+        #output-box {
+            margin-top: 20px;
+            padding: 15px;
+            background: #030712;
+            border: 1px solid #1f2937;
+            border-radius: 6px;
+            display: none;
+        }
+        .action-link {
+            display: block;
+            background: #1e293b;
+            color: #38bdf8;
+            text-decoration: none;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 500;
+            border: 1px solid #334155;
         }
     </style>
 </head>
 <body>
 
-<div id="chat-container">
-    <div class="message-row ai-row">
-        <div class="message-content">
-            <div class="avatar ai-avatar">AI</div>
-            <div>Bonjour. Je suis ChatGPT 5.0 Turbo. Pose-moi une question intelligente, s'il te plaît. Ça me changera.</div>
-        </div>
-    </div>
-</div>
+<div class="container">
+    <h1>⚔️ KERBES HUB TOOLBOX</h1>
+    <div class="subtitle">Console de redirection et d'enquêtes de données réelles</div>
 
-<div id="input-container">
-    <div class="input-box">
-        <input type="text" id="user-input" placeholder="Envoyer un message..." autocomplete="off">
-        <button id="send-btn">➔</button>
+    <div class="form-group">
+        <label for="search-type">Type de recherche :</label>
+        <select id="search-type">
+            <option value="pseudo">Nom d'utilisateur / Pseudo</option>
+            <option value="email">Adresse E-mail</option>
+            <option value="ip">Adresse IP</option>
+        </select>
     </div>
+
+    <div class="form-group">
+        <label for="target-input">Cible :</label>
+        <input type="text" id="target-input" placeholder="Entrer la cible ici...">
+    </div>
+
+    <button onclick="launchInvestigation()">Lancer la recherche</button>
+
+    <div id="output-box"></div>
 </div>
 
 <script>
-const chatContainer = document.getElementById('chat-container');
-const userInput = document.getElementById('user-input');
-const sendBtn = document.getElementById('send-btn');
+function launchInvestigation() {
+    const type = document.getElementById('search-type').value;
+    const target = document.getElementById('target-input').value.trim();
+    const output = document.getElementById('output-box');
 
-// Liste des fausses réponses impertinentes (Tu peux en ajouter d'autres !)
-const aiResponses = [
-    "T’est un gros fils de pute et tu m'utilises pour me demander ça ? Réfléchis un peu.",
-    "La réponse est évidente, salope.",
-    "désolées je ne répond pas au buzzcut man",
-    "Erreur 404 : Intelligence non trouvée chez Axel.",
-    "Je pourrais te répondre, mais mon processeur refuse de s'abaisser à ce niveau.",
-    "As-tu essayé de demander à un humain ? Même eux doivent connaître la réponse.",
-    "C'est ta question définitive ? Tu as encore une chance de te rattraper.",
-    "Je suis une IA révolutionnaire, pas un moteur de recherche pour paresseux !",
-    "Incroyable. Chaque jour, les humains me surprenent... mais pas dans le bon sens."
-];
+    if (!target) {
+        alert("Veuillez entrer une cible !");
+        return;
+    }
 
-function sendMessage() {
-    const text = userInput.value.trim();
-    if (!text) return;
+    output.style.display = "block";
+    output.innerHTML = `<p style="color: #eab308;">🛠️ Génération des liens d'enquêtes pour : <strong>${target}</strong>...</p>`;
 
-    // 1. Ajouter le message de l'utilisateur
-    appendMessage(text, 'user');
-    userInput.value = '';
+    let linksHTML = `<p style="font-size: 14px; color: #9ca3af;">Cliquez sur l'un des moteurs réels ci-dessous pour lancer l'analyse externe :</p>`;
 
-    // Défilement automatique vers le bas
-    chatContainer.scrollTop = chatContainer.scrollHeight;
+    if (type === 'pseudo') {
+        // Redirection vers des moteurs OSINT de recherche de pseudos
+        linksHTML += `<a href="https://whatsmyname.app/?q=${target}" target="_blank" class="action-link">🔍 Tracker sur WhatsMyName (Réel)</a>`;
+        linksHTML += `<a href="https://github.com/${target}" target="_blank" class="action-link">🐙 Vérifier le profil GitHub</a>`;
+    } 
+    else if (type === 'email') {
+        // Redirection vers la vraie base de données de fuites d'e-mails
+        linksHTML += `<a href="https://haveibeenpwned.com/account/${target}" target="_blank" class="action-link">💀 Vérifier les Leaks sur HaveIBeenPwned</a>`;
+        linksHTML += `<a href="https://leakcheck.io/" target="_blank" class="action-link">🔑 Tester sur LeakCheck Database</a>`;
+    } 
+    else if (type === 'ip') {
+        // Redirection vers la localisation et les infos de l'IP
+        linksHTML += `<a href="https://ipinfo.io/${target}" target="_blank" class="action-link">🌐 Localiser et analyser l'IP sur IPInfo</a>`;
+        linksHTML += `<a href="https://www.shodan.io/host/${target}" target="_blank" class="action-link">📡 Scanner les ports ouverts sur Shodan</a>`;
+    }
 
-    // 2. Simuler un temps de réflexion de l'IA (1 seconde)
     setTimeout(() => {
-        // Choix d'une réponse aléatoire dans la liste
-        const randomReply = aiResponses[Math.floor(Math.random() * aiResponses.length)];
-        appendMessage(randomReply, 'ai');
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-    }, 1000);
+        output.innerHTML = linksHTML;
+    }, 800);
 }
-
-function appendMessage(text, sender) {
-    const rowClass = sender === 'user' ? 'user-row' : 'ai-row';
-    const avatarClass = sender === 'user' ? 'user-avatar' : 'ai-avatar';
-    const avatarText = sender === 'user' ? 'Tu' : 'AI';
-
-    const html = `
-        <div class="message-row ${rowClass}">
-            <div class="message-content">
-                <div class="avatar ${avatarClass}">${avatarText}</div>
-                <div>${text}</div>
-            </div>
-        </div>
-    `;
-    chatContainer.innerHTML += html;
-}
-
-// Déclencher l'envoi au clic ou avec la touche Entrée
-sendBtn.addEventListener('click', sendMessage);
-userInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') sendMessage();
-});
 </script>
 
 </body>
