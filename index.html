@@ -3,117 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <!-- Balises pour forcer le mode plein écran sur l'écran d'accueil iOS/iPadOS -->
+    <!-- Balises pour forcer le mode plein écran sur iOS/iPadOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Terminal">
-    <title>Terminal</title>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Settings">
+    <title>Settings</title>
     <style>
         body {
-            background-color: #000;
-            color: #0f0; /* Vert style hacker */
-            font-family: 'Courier New', Courier, monospace;
             margin: 0;
-            padding: 20px;
-            overflow: hidden;
-            box-sizing: border-box;
+            padding: 0;
+            width: 100vw;
             height: 100vh;
+            overflow: hidden;
+            cursor: none; /* Pas de curseur pour faire plus vrai */
+            background-color: black;
         }
-        #terminal {
+
+        /* --- Écran 1 : L'apparence normale (Fausse) --- */
+        #home-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            word-wrap: break-word;
+            background-size: cover;
+            background-position: center;
+            /* IMPORTANT : Remplace 'ton-screenshot.jpg' par le lien de ton image hébergée */
+            background-image: url('https://lien-vers-votre-image-hebergee.com/votre-screenshot.jpg'); 
+            z-index: 1;
         }
-        .input-line {
-            display: flex;
-            align-items: center;
+
+        /* --- Écran 2 : La Fissure (Cachée au début) --- */
+        #crack {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* J'ai pris une image de fissure sur internet pour l'exemple */
+            background-image: url('https://www.transparentpng.com/download/glass-crack/transparent-background-glass-crack-0.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 2; /* Par-dessus l'écran d'accueil */
+            opacity: 0; /* Invisible au chargement */
+            pointer-events: none; /* Permet de cliquer "à travers" */
+            transition: opacity 0.1s ease-in;
         }
-        .prompt {
-            color: #33ff33;
-            margin-right: 5px;
-        }
-        input {
-            background: transparent;
-            border: none;
-            color: #0f0;
-            font-family: inherit;
-            font-size: inherit;
-            outline: none;
-            flex-grow: 1;
-            padding: 0;
-        }
-        .error { color: #ff3333; }
-        .info { color: #33ccff; }
     </style>
 </head>
 <body>
 
-<div id="terminal">
-    <div id="output">--- SYSTEM OVERRIDE CORE v4.2 ---
-Tape 'help' pour voir les commandes.
+<!-- L'élément qui montre le faux fond d'écran -->
+<div id="home-screen"></div>
 
-</div>
-    <div class="input-line">
-        <span class="prompt">root@ipad-macbook:~#</span>
-        <input type="text" id="cmd" autofocus autocomplete="off" autocapitalize="off" spellcheck="false">
-    </div>
-</div>
+<!-- L'élément qui montre la fissure -->
+<div id="crack"></div>
+
+<!-- Le son de la vitre cassée (hébergé quelque part) -->
+<audio id="crack-sound" preload="auto">
+    <source src="https://www.myinstants.com/media/sounds/glass_breaking.mp3" type="audio/mpeg">
+</audio>
 
 <script>
-const output = document.getElementById('output');
-const input = document.getElementById('cmd');
-const terminal = document.getElementById('terminal');
+    const homeScreen = document.getElementById('home-screen');
+    const crackEffect = document.getElementById('crack');
+    const crackSound = document.getElementById('crack-sound');
 
-// Garder le focus sur l'input quand on clique n'importe où
-document.addEventListener('click', () => input.focus());
-
-input.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-        const fullCmd = this.value.trim();
-        const args = fullCmd.split(' ');
-        const cmd = args[0].toLowerCase();
+    // Fonction pour déclencher le prank
+    function casserEcran(e) {
+        // 1. Rendre la fissure visible
+        crackEffect.style.opacity = '1';
         
-        // Afficher la commande tapée
-        output.innerHTML += `root@ipad-macbook:~# ${fullCmd}\n`;
+        // 2. Jouer le son (il faut parfois que l'utilisateur ait déjà cliqué une fois sur la page pour que le son marche sur iOS, c'est une sécurité)
+        crackSound.play().catch(error => console.log("Erreur son :", error));
 
-        if (fullCmd !== "") {
-            executeCommand(cmd, args.slice(1));
-        }
-
-        this.value = '';
-        terminal.scrollTop = terminal.scrollHeight; // Scroll automatique
+        // Pour faire plus vrai, on peut désactiver les clics après la casse
+        document.removeEventListener('click', casserEcran);
     }
-});
 
-function executeCommand(cmd, args) {
-    switch(cmd) {
-        case 'help':
-            output.innerHTML += "Commandes : ls, clear, neofetch, hack-mode, matrix\n";
-            break;
-        case 'ls':
-            output.innerHTML += "documents/  telechargements/  <span class='error'>system_core.bin</span>\n";
-            break;
-        case 'clear':
-            output.innerHTML = '';
-            break;
-        case 'whoami':
-            output.innerHTML += "root\n";
-            break;
-        case 'neofetch':
-            output.innerHTML += "<span class='info'>OS:</span> Fake-macOS Catalina running on iPad\n<span class='info'>Kernel:</span> Bypass-10.4\n<span class='info'>Uptime:</span> 1337 mins\n";
-            break;
-        case 'hack-mode':
-            output.innerHTML += "<span class='error'>[!] INITIALISATION DU COMPTE À REBOURS DE DÉSTRUCTION DU SYSTÈME...</span>\n(C'est une blague 😉)\n";
-            break;
-        case 'matrix':
-            output.innerHTML += "01010100010010000100010100100000010011010100000101010100010100100100100101011000\n";
-            break;
-        default:
-            output.innerHTML += `bash: ${cmd}: command not found\n`;
-    }
-}
+    // Activer l'écouteur de clic sur tout le corps de la page
+    document.addEventListener('click', casserEcran);
+
 </script>
+
 </body>
 </html>
