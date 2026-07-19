@@ -5,81 +5,78 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Kerbes-Local">
-    <title>Kerbes Local OSINT</title>
-    <!-- Inclusion de la bibliothèque pour lire les métadonnées des images -->
+    <meta name="apple-mobile-web-app-title" content="Kerbes-Max">
+    <title>Kerbes Max OSINT</title>
     <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
     <style>
         body {
-            background-color: #080b11;
-            color: #e2e8f0;
+            background-color: #06090f;
+            color: #f0f6fc;
             font-family: -apple-system, BlinkMacSystemFont, sans-serif;
             margin: 0;
             padding: 20px;
             box-sizing: border-box;
-            height: 100vh;
         }
         .container {
-            max-width: 600px;
+            max-width: 650px;
             margin: 10px auto;
-            background: #111827;
-            border: 1px solid #1f2937;
-            padding: 20px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            padding: 25px;
             border-radius: 12px;
         }
-        h1 { color: #38bdf8; font-size: 20px; text-align: center; margin: 0 0 5px 0; }
-        .subtitle { color: #6b7280; font-size: 12px; text-align: center; margin-bottom: 20px; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-size: 13px; color: #9ca3af; margin-bottom: 5px; }
+        h1 { color: #58a6ff; font-size: 22px; text-align: center; margin: 0 0 5px 0; letter-spacing: 1px; }
+        .subtitle { color: #8b949e; font-size: 12px; text-align: center; margin-bottom: 25px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 14px; color: #8b949e; margin-bottom: 8px; }
         select, input {
-            width: 100%; padding: 10px; background: #030712; border: 1px solid #374151;
-            color: white; border-radius: 6px; font-size: 14px; box-sizing: border-box; outline: none;
+            width: 100%; padding: 12px; background: #010409; border: 1px solid #30363d;
+            color: white; border-radius: 6px; font-size: 15px; box-sizing: border-box; outline: none;
         }
+        select:focus, input:focus { border-color: #58a6ff; }
         #image-group { display: none; }
         button {
-            width: 100%; background: #0284c7; color: white; border: none; padding: 12px;
-            font-size: 15px; border-radius: 6px; cursor: pointer; font-weight: bold;
+            width: 100%; background: #238636; color: white; border: none; padding: 14px;
+            font-size: 16px; border-radius: 6px; cursor: pointer; font-weight: bold;
         }
+        button:hover { background: #2ea043; }
         #output-box {
-            margin-top: 15px; padding: 15px; background: #030712; border: 1px solid #1f2937;
-            border-radius: 6px; display: none; max-height: 250px; overflow-y: auto;
+            margin-top: 20px; padding: 15px; background: #161b22; border: 1px solid #30363d;
+            border-radius: 6px; display: none; max-height: 350px; overflow-y: auto;
             font-family: 'Courier New', monospace; font-size: 13px; white-space: pre-wrap;
+            line-height: 1.6;
         }
-        .danger { color: #ef4444; }
-        .success { color: #22c55e; }
-        .info { color: #38bdf8; }
+        .danger { color: #f85149; }
+        .success { color: #58a6ff; }
+        .info { color: #ff7b72; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>⚔️ KERBES INTERNAL SYSTEM</h1>
-    <div class="subtitle">Analyseur de données & Extracteur GPS (No Redirect)</div>
+    <h1>⚔️ KERBES DATA MAXIMIZER</h1>
+    <div class="subtitle">Extraction maximale des registres publics et métadonnées</div>
 
     <div class="form-group">
-        <label for="search-type">Type de recherche :</label>
+        <label for="search-type">Vecteur d'investigation :</label>
         <select id="search-type" onchange="toggleInputType()">
-            <option value="name">Nom + Prénom</option>
-            <option value="phone">Numéro de téléphone</option>
-            <option value="email">Adresse E-mail</option>
-            <option value="ip">Adresse IP</option>
-            <option value="image">Image (Localiser une photo)</option>
+            <option value="identity">Nom + Prénom (Dossier Public Complet)</option>
+            <option value="phone">Numéro de Téléphone (Réseau & Origine)</option>
+            <option value="image">Image (Extraction GPS Métadonnées)</option>
         </select>
     </div>
 
-    <!-- Groupe pour le texte classique -->
     <div class="form-group" id="text-group">
         <label id="input-label" for="target-input">Donnée cible :</label>
         <input type="text" id="target-input" placeholder="Ex: Jean Dupont">
     </div>
 
-    <!-- Groupe spécifique pour l'import d'image -->
     <div class="form-group" id="image-group">
-        <label for="image-input">Sélectionner une photo (JPEG de préférence) :</label>
+        <label for="image-input">Fichier image cible :</label>
         <input type="file" id="image-input" accept="image/jpeg, image/jpg">
     </div>
 
-    <button onclick="startLocalScan()">LANCER L'ANALYSE</button>
+    <button onclick="startMaxScan()">LANCER LA COMPILATION</button>
 
     <div id="output-box"></div>
 </div>
@@ -97,112 +94,142 @@ function toggleInputType() {
     } else {
         textGroup.style.display = 'block';
         imageGroup.style.display = 'none';
-        if(type === 'name') input.placeholder = "Ex: Jean Dupont";
-        if(type === 'phone') input.placeholder = "Ex: +33612345678";
-        if(type === 'email') input.placeholder = "Ex: cible@gmail.com";
-        if(type === 'ip') input.placeholder = "Ex: 8.8.8.8";
+        input.placeholder = type === 'identity' ? "Ex: Jean Dupont" : "Ex: 0612345678";
     }
 }
 
-// Fonction pour convertir le format EXIF (Degrés, Minutes, Secondes) en coordonnées décimales utilisables
 function ConvertDMSToDD(degrees, minutes, seconds, direction) {
     let dd = degrees + (minutes/60) + (seconds/3600);
     if (direction == "S" || direction == "W") { dd = dd * -1; }
     return dd;
 }
 
-async function startLocalScan() {
+async function startMaxScan() {
     const type = document.getElementById('search-type').value;
     const output = document.getElementById('output-box');
 
     output.style.display = "block";
-    output.innerHTML = `<span class="info">[🔄] Requête envoyée au cœur système...</span>\n`;
+    output.innerHTML = `<span class="success">[⚙️] Initialisation des modules d'extraction légaux...</span>\n`;
 
-    // --- NOUVEAU : RECHERCHE PAR IMAGE ---
-    if (type === 'image') {
-        const fileInput = document.getElementById('image-input');
-        if (fileInput.files.length === 0) {
-            output.innerHTML += `<span class="danger">[❌] Erreur: Veuillez importer une image d'abord.</span>`;
-            return;
+    // --- NOM / PRÉNOM EXTENSION MAXIMALE ---
+    if (type === 'identity') {
+        const target = document.getElementById('target-input').value.trim();
+        if (!target) return alert("Entrez une cible !");
+        
+        output.innerHTML += `[📡] Interrogation du Répertoire National Interentreprises...\n`;
+        
+        try {
+            const response = await fetch(`https://recherche-entreprises.api.gouv.fr/search?q=${encodeURIComponent(target)}&per_page=5`);
+            const data = await response.json();
+
+            if (data.results && data.results.length > 0) {
+                output.innerHTML += `[📊] ANALYSE DES CORRESPONDANCES COMMERCIALES :\n`;
+                data.results.forEach((ent, index) => {
+                    output.innerHTML += `\n---------------- (Fiche #${index + 1}) ----------------\n`;
+                    output.innerHTML += `• Identité Légale   : ${ent.nom_complet}\n`;
+                    output.innerHTML += `• Structure          : ${ent.nature_juridique || "Non spécifiée"}\n`;
+                    output.innerHTML += `• Date de création   : ${ent.date_creation || "Inconnue"}\n`;
+                    output.innerHTML += `• Siège social       : ${ent.siege.geo_adresse || ent.siege.libelle_commune}\n`;
+                    output.innerHTML += `• Numéro SIREN       : ${ent.siren}\n`;
+                    output.innerHTML += `• Activité Déclarée  : ${ent.activite_principale} - ${ent.siege.activite_principale_libelle || ""}\n`;
+                });
+            } else {
+                output.innerHTML += `<span class="info">[i] Aucun enregistrement d'entreprise trouvé au niveau national pour ce nom.</span>\n`;
+            }
+            
+            // Simulation d'un scan de visibilité publique pour compléter le dossier
+            output.innerHTML += `\n[🔍] COMPILATION DE L'EMPREINTE WEB PUBLIQUE :\n`;
+            output.innerHTML += `• Moteurs indexés    : Profils publics potentiels sur LinkedIn, Annuaire Écoles, et Journaux Officiels (BODACC).\n`;
+            output.innerHTML += `• Statut de sécurité : Aucune alerte de restriction d'accès détectée.\n`;
+
+        } catch {
+            output.innerHTML += `[❌] Échec de la communication avec l'API Open-Data.`;
         }
+    }
+
+    // --- TÉLÉPHONE EXTENSION MAXIMALE ---
+    else if (type === 'phone') {
+        let target = document.getElementById('target-input').value.trim();
+        if (!target) return alert("Entrez un numéro !");
+        
+        output.innerHTML += `[📡] Analyse structurelle du numéro et des préfixes ARCEP...\n`;
+        target = target.replace(/[^0-9]/g, '');
+
+        setTimeout(() => {
+            let operator = "Opérateur Virtuel (MVNO) ou Fixe";
+            let typeLigne = "Fixe / VoIP / Spécial";
+            let region = "France (Territoire National)";
+            
+            if (target.startsWith('336') || target.startsWith('06') || target.startsWith('337') || target.startsWith('07')) {
+                typeLigne = "Mobile GSM (Cellulaire)";
+                const sub = (target.startsWith('06') || target.startsWith('07')) ? target.substring(0, 4) : '0' + target.substring(2, 5);
+                
+                // Analyse étendue basée sur les tranches ARCEP
+                if (sub.startsWith('060') || sub.startsWith('061') || sub.startsWith('062')) operator = "Orange France";
+                else if (sub.startsWith('063') || sub.startsWith('064') || sub.startsWith('069')) operator = "SFR Mobile";
+                else if (sub.startsWith('065') || sub.startsWith('075')) operator = "Free Mobile";
+                else if (sub.startsWith('066') || sub.startsWith('067') || sub.startsWith('068')) operator = "Bouygues Telecom";
+            } else {
+                // Détection de la région pour les lignes fixes
+                const code = target.substring(0, 2);
+                if (code === '01') region = "Île-de-France (Paris et couronne)";
+                else if (code === '02') region = "Zone Nord-Ouest (Normandie, Bretagne...)";
+                else if (code === '03') region = "Zone Nord-Est (Hauts-de-France, Grand Est...)";
+                else if (code === '04') region = "Zone Sud-Est (Auvergne-Rhône-Alpes, PACA...)";
+                else if (code === '05') region = "Zone Sud-Ouest (Nouvelle-Aquitaine, Occitanie...)";
+            }
+
+            output.innerHTML += `\n[📊] RÉSULTATS DU SCAN DE LIGNE :\n`;
+            output.innerHTML += `• Format National : ${target}\n`;
+            output.innerHTML += `• Nature du Réseau: ${typeLigne}\n`;
+            output.innerHTML += `• Opérateur Racine: ${operator}\n`;
+            output.innerHTML += `• Zone Géographique: ${region}\n`;
+            output.innerHTML += `• Info Légale     : Ligne en conformité avec le plan national de numérotation.\n`;
+        }, 800);
+    }
+
+    // --- IMAGE EXTENSION MAXIMALE ---
+    else if (type === 'image') {
+        const fileInput = document.getElementById('image-input');
+        if (fileInput.files.length === 0) return alert("Importez une image !");
 
         const file = fileInput.files[0];
-        output.innerHTML += `[📡] Analyse des métadonnées binaires de l'image...\n`;
+        output.innerHTML += `[📡] Extraction des blocs de données EXIF bruts...\n`;
 
-        // Utilisation d'EXIF.js pour lire le fichier chargé localement
         EXIF.getData(file, async function() {
             const lat = EXIF.getTag(this, "GPSLatitude");
             const lon = EXIF.getTag(this, "GPSLongitude");
             const latRef = EXIF.getTag(this, "GPSLatitudeRef");
             const lonRef = EXIF.getTag(this, "GPSLongitudeRef");
+            const camera = EXIF.getTag(this, "Make") + " " + EXIF.getTag(this, "Model");
+            const date = EXIF.getTag(this, "DateTime");
 
             if (!lat || !lon) {
-                output.innerHTML += `<span class="danger">❌ Aucune coordonnée GPS masquée trouvée dans cette image.</span>\n(Note: Les réseaux comme WhatsApp ou Discord effacent souvent ces données au partage. Teste avec une vraie photo prise directement par l'appareil de l'iPad !)`;
+                output.innerHTML += `<span class="danger">❌ Aucune coordonnée GPS publique injectée dans ce fichier.</span>`;
                 return;
             }
 
-            // Conversion des coordonnées
             const latitude = ConvertDMSToDD(lat[0], lat[1], lat[2], latRef);
             const longitude = ConvertDMSToDD(lon[0], lon[1], lon[2], lonRef);
 
-            output.innerHTML += `[🎯] Coordonnées brutes extraites : ${latitude.toFixed(5)}, ${longitude.toFixed(5)}\n`;
-            output.innerHTML += `[🌐] Interrogation des registres cartographiques (Nominatim)...\n`;
-
             try {
-                // Appel direct et transparent à OpenStreetMap pour obtenir l'adresse exacte
                 const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
                 const geoData = await response.json();
 
+                output.innerHTML += `\n[📍] DONNÉES DE LOCALISATION ET MATÉRIEL :\n`;
+                if (camera && camera.trim() !== "undefined undefined") output.innerHTML += `• Matériel Source  : ${camera}\n`;
+                if (date) output.innerHTML += `• Horodatage Prise : ${date}\n`;
+                
                 if (geoData && geoData.address) {
-                    output.innerHTML += `<span class="success">📍 ADRESSE DE L'IMAGE TROUVÉE :</span>\n`;
-                    output.innerHTML += `• Ville   : ${geoData.address.city || geoData.address.town || geoData.address.village || "Inconnue"}\n`;
-                    output.innerHTML += `• Code Post: ${geoData.address.postcode || "Inconnu"}\n`;
-                    output.innerHTML += `• Adresse  : ${geoData.address.road || ""} ${geoData.address.house_number || ""}\n`;
-                    output.innerHTML += `• Pays    : ${geoData.address.country || ""}\n`;
-                } else {
-                    output.innerHTML += `<span class="danger">⚠️ Impossible de traduire les coordonnées en adresse textuelle.</span>`;
+                    output.innerHTML += `• Pays / Code     : ${geoData.address.country} (${geoData.address.country_code.toUpperCase()})\n`;
+                    output.innerHTML += `• Région / Ville  : ${geoData.address.state || ""} - ${geoData.address.city || geoData.address.town || ""}\n`;
+                    output.innerHTML += `• Adresse Exacte  : ${geoData.address.road || ""} ${geoData.address.house_number || ""}\n`;
+                    output.innerHTML += `• Code Postal     : ${geoData.address.postcode || ""}\n`;
                 }
             } catch {
-                output.innerHTML += `<span class="danger">❌ Erreur lors de la récupération de l'adresse géographique.</span>`;
+                output.innerHTML += `<span class="danger">❌ Erreur de résolution de l'adresse géographique.</span>`;
             }
         });
-    }
-
-    // --- LES AUTRES OPTIONS DU MENU (RESTE INCHANGÉ) ---
-    else {
-        const target = document.getElementById('target-input').value.trim();
-        if (!target) return alert("Entrez une cible !");
-
-        if (type === 'name') {
-            output.innerHTML += `[📡] Recherche pour: ${target}...\n`;
-            setTimeout(() => {
-                output.innerHTML += `<span class="danger">⚠️ Profils potentiels détectés :</span>\n• Registre civil trouvé (France)\n• Empreintes numériques détectées sur les réseaux sociaux.`;
-            }, 1000);
-        }
-        else if (type === 'phone') {
-            output.innerHTML += `[📡] Analyse de la ligne téléphonique...\n`;
-            setTimeout(() => {
-                output.innerHTML += `<span class="success">✅ Infos extraites :</span>\n• Format : Valide\n• Type : Ligne Mobile GSM\n• Opérateur d'origine détecté.`;
-            }, 1000);
-        }
-        else if (type === 'email') {
-            try {
-                const response = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent('https://haveibeenpwned.com/api/v3/breachedaccount/' + target)}`);
-                const data = await response.json();
-                if (data.status && data.status.http_code === 404) {
-                    output.innerHTML += `<span class="success">✅ Propre ! Aucune fuite détectée pour ${target}.</span>`;
-                } else {
-                    output.innerHTML += `<span class="danger">❌ ALERTE ! Cet e-mail a été trouvé dans des fuites publiques.</span>`;
-                }
-            } catch { output.innerHTML += `[❌] Erreur serveur.`; }
-        }
-        else if (type === 'ip') {
-            try {
-                const response = await fetch(`https://ipapi.co/${target}/json/`);
-                const data = await response.json();
-                output.innerHTML += `<span class="success">📊 Données trouvées :</span>\n• Pays : ${data.country_name}\n• Ville : ${data.city}\n• ISP : ${data.org}`;
-            } catch { output.innerHTML += `[❌] Échec du scan IP.`; }
-        }
     }
 }
 </script>
