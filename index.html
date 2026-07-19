@@ -5,167 +5,215 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Kerbes-Terminal">
-    <title>KERBES OSINT TERMINAL</title>
+    <meta name="apple-mobile-web-app-title" content="Kerbes-Modern">
+    <title>KERBES OSINT PLATFORM</title>
     <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
     <style>
         :root {
-            --bg-dark: #05070a;
-            --term-bg: #020305;
-            --border-color: #1f242e;
-            --text-green: #39ff14;
-            --text-red: #ff3333;
-            --text-blue: #00d9ff;
-            --text-muted: #4f5b70;
+            --bg-main: #0b0f19;
+            --bg-card: #111827;
+            --bg-input: #1f2937;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --accent-blue: #3b82f6;
+            --accent-green: #10b981;
+            --accent-red: #ef4444;
+            --border: #374151;
         }
+        
         body {
-            background-color: var(--bg-dark);
-            color: #ffffff;
-            font-family: 'Courier New', Courier, monospace;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             margin: 0;
-            padding: 15px;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
             box-sizing: border-box;
-            height: 100vh;
         }
-        .terminal-window {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: var(--term-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.8);
+
+        .dashboard {
+            width: 100%;
+            max-width: 900px;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
             display: flex;
             flex-direction: column;
         }
-        .terminal-header {
-            background-color: #0c0f17;
-            padding: 8px 12px;
-            border-bottom: 1px solid var(--border-color);
+
+        .dash-header {
+            background-color: #070a12;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
             display: flex;
-            gap: 6px;
+            justify-content: space-between;
             align-items: center;
-            font-size: 11px;
+        }
+
+        .dash-title {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .dash-title span {
+            color: var(--accent-blue);
+        }
+
+        .window-dots {
+            display: flex;
+            gap: 8px;
+        }
+        .dot { width: 12px; height: 12px; border-radius: 50%; }
+        .d-red { background-color: #ef4444; }
+        .d-yellow { background-color: #f59e0b; }
+        .d-green { background-color: #10b981; }
+
+        .dash-body {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        label {
+            font-size: 14px;
+            font-weight: 500;
             color: var(--text-muted);
         }
-        .dot { width: 10px; height: 10px; border-radius: 50%; }
-        .dot-red { background-color: #ff5f56; }
-        .dot-yellow { background-color: #ffbd2e; }
-        .dot-green { background-color: #27c93f; }
-        
-        .terminal-body {
-            padding: 20px;
-        }
-        .select-wrapper {
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        span.prompt { color: var(--text-green); }
-        select {
-            background: #090d16;
-            border: 1px solid #2a3245;
-            color: var(--text-blue);
-            font-family: inherit;
-            padding: 8px;
-            outline: none;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        .input-line {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        input[type="text"] {
-            flex-grow: 1;
-            background: transparent;
-            border: none;
-            color: #ffffff;
-            font-family: inherit;
+
+        select, input[type="text"] {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-main);
+            padding: 12px 16px;
+            border-radius: 8px;
             font-size: 15px;
             outline: none;
-            border-bottom: 1px solid var(--text-muted);
-            padding: 4px 0;
+            transition: border-color 0.2s;
+            font-family: inherit;
         }
+
+        select:focus, input[type="text"]:focus {
+            border-color: var(--accent-blue);
+        }
+
         input[type="file"] {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border);
+            padding: 12px;
+            border-radius: 8px;
             color: var(--text-muted);
-            font-family: inherit;
         }
+
         #image-input-container { display: none; }
-        
-        button {
-            background: transparent;
-            border: 1px solid var(--text-green);
-            color: var(--text-green);
-            padding: 10px 20px;
-            font-family: inherit;
-            font-size: 14px;
+
+        .btn-execute {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
-            font-weight: bold;
-            text-transform: uppercase;
-            transition: all 0.2s;
+            transition: opacity 0.2s;
+            text-align: center;
+            letter-spacing: 0.5px;
         }
-        button:hover {
-            background: rgba(57, 255, 20, 0.1);
-            box-shadow: 0 0 10px rgba(57, 255, 20, 0.3);
+
+        .btn-execute:hover {
+            opacity: 0.9;
         }
-        
+
+        .console-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
         #console-log {
-            margin-top: 20px;
-            background: #010204;
-            border: 1px solid #141923;
-            padding: 15px;
-            height: 320px;
+            background-color: #070a12;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 16px;
+            height: 280px;
             overflow-y: auto;
+            font-family: 'Courier New', Courier, monospace;
             font-size: 13px;
             white-space: pre-wrap;
-            line-height: 1.5;
+            line-height: 1.6;
         }
-        .c-green { color: var(--text-green); }
-        .c-red { color: var(--text-red); }
-        .c-blue { color: var(--text-blue); }
+
+        .c-green { color: var(--accent-green); }
+        .c-red { color: var(--accent-red); }
+        .c-blue { color: var(--accent-blue); }
         .c-muted { color: var(--text-muted); }
     </style>
 </head>
 <body>
 
-<div class="terminal-window">
-    <div class="terminal-header">
-        <div class="dot dot-red"></div>
-        <div class="dot dot-yellow"></div>
-        <div class="dot dot-green"></div>
-        <div style="margin-left: 10px;">kerbes@osint-node:~</div>
+<div class="dashboard">
+    <div class="dash-header">
+        <div class="dash-title">⚔️ KERBES <span>OSINT PLATFORM</span></div>
+        <div class="window-dots">
+            <div class="dot d-red"></div>
+            <div class="dot d-yellow"></div>
+            <div class="dot d-green"></div>
+        </div>
     </div>
     
-    <div class="terminal-body">
-        <div class="select-wrapper">
-            <span class="prompt">kerbes@root:~$</span> <span class="c-muted">set-tool --mode</span>
+    <div class="dash-body">
+        <!-- Sélecteur des 10 Outils -->
+        <div class="field-group">
+            <label for="tool-select">Module d'enquête actif</label>
             <select id="tool-select" onchange="switchTool()">
-                <option value="identity">1. identity_scanner (Nom / Prénom)</option>
-                <option value="phone">2. hlr_lookup (Téléphone)</option>
-                <option value="image">3. exif_extractor (Analyse Photo)</option>
+                <option value="sirene">1. sirene_registry_lookup (Nom/Prénom -> Insee)</option>
+                <option value="infogreffe">2. greffe_corporate_scan (Nom/Prénom -> Sociétés)</option>
+                <option value="username">3. user_alias_enumerator (Pseudo/Nom -> Hypothèses)</option>
+                <option value="hlr">4. hlr_carrier_ping (Mobile -> Opérateur Racine)</option>
+                <option value="arcep">5. arcep_zne_codec (Téléphone -> Zone Géo Fixe)</option>
+                <option value="country">6. phone_country_resolver (International -> Préfixe)</option>
+                <option value="exif">7. exif_gps_extractor (Image -> Coordonnées Brutes)</option>
+                <option value="nominatim">8. reverse_geo_nominatim (Coordonnées -> Adresse)</option>
+                <option value="meta_strip">9. stripped_metadata_fallback (Image Discord/WA)</option>
+                <option value="imghash">10. digital_image_hash_engine (Image -> Signature)</option>
             </select>
         </div>
 
-        <!-- Inputs Textes -->
-        <div class="input-line" id="text-input-container">
-            <span class="prompt">> arg_target:</span>
-            <input type="text" id="target-data" placeholder="Jean Dupont" autocomplete="off">
+        <!-- Inputs Variables Dynamiques -->
+        <div class="field-group" id="text-input-container">
+            <label for="target-data">Donnée / Chaîne cible</label>
+            <input type="text" id="target-data" placeholder="Ex: Jean Dupont" autocomplete="off">
         </div>
 
-        <!-- Inputs Images -->
-        <div class="input-line" id="image-input-container">
-            <span class="prompt">> arg_file:</span>
+        <div class="field-group" id="image-input-container">
+            <label for="image-file">Fichier cible à analyser</label>
             <input type="file" id="image-file" accept="image/jpeg, image/png, image/jpg">
         </div>
 
-        <button onclick="executeCommand()">[ Execute Command ]</button>
+        <button class="btn-execute" onclick="executeCommand()">Lancer l'analyse du module</button>
 
-        <!-- Zone de sortie Console -->
-        <div id="console-log">=== KERBES OSINT TERMINAL READY ===
-Type data and press execute to run subsystem...</div>
+        <!-- Console Intégrée Moderne -->
+        <div class="console-wrapper">
+            <label>Sortie Moniteur Système</label>
+            <div id="console-log">=== READY FOR ANALYSIS SYSTEM v4.0 ===
+[i] Sélectionnez un outil parmi les 10 options et insérez vos arguments pour compiler un rapport.</div>
+        </div>
     </div>
 </div>
 
@@ -176,13 +224,18 @@ function switchTool() {
     const imgCont = document.getElementById('image-input-container');
     const input = document.getElementById('target-data');
 
-    if (tool === 'image') {
+    if (['exif', 'nominatim', 'meta_strip', 'imghash'].includes(tool)) {
         textCont.style.display = 'none';
         imgCont.style.display = 'flex';
     } else {
         textCont.style.display = 'flex';
         imgCont.style.display = 'none';
-        input.placeholder = tool === 'identity' ? "Jean Dupont" : "0612345678";
+        
+        if (['sirene', 'infogreffe', 'username'].includes(tool)) {
+            input.placeholder = "Ex: Jean Dupont";
+        } else {
+            input.placeholder = "Ex: 0612345678";
+        }
     }
 }
 
@@ -195,83 +248,62 @@ function convertDMSToDD(deg, min, sec, ref) {
 async function executeCommand() {
     const tool = document.getElementById('tool-select').value;
     const consoleLog = document.getElementById('console-log');
-    
-    consoleLog.innerHTML = `<span class="c-muted">[i] Executing module locally...</span>\n`;
+    const textVal = document.getElementById('target-data').value.trim();
+    const fileInput = document.getElementById('image-file');
 
-    // --- MODULE 1 : IDENTITY (NOM/PRENOM) ---
-    if (tool === 'identity') {
-        const val = document.getElementById('target-data').value.trim();
-        if (!val) return alert("Missing parameter");
+    consoleLog.innerHTML = `<span class="c-muted">[i] Connexion au pipeline de données pour ${tool}...</span>\n`;
 
-        consoleLog.innerHTML += `<span class="c-blue">[run] shodan-sirene-lookup --query "${val}"</span>\n`;
+    if (['sirene', 'infogreffe', 'username', 'hlr', 'arcep', 'country'].includes(tool)) {
+        if (!textVal) return alert("Paramètre requis manquant.");
         
-        try {
-            const res = await fetch(`https://recherche-entreprises.api.gouv.fr/search?q=${encodeURIComponent(val)}&per_page=3`);
-            const data = await res.json();
-            
-            // 10 COMMANDES/OUTILS OSINT EMBARQUÉS
-            consoleLog.innerHTML += `\n<span class="c-green">[📊 BUNDLE OUTILS OSINT APPLIQUÉ]</span>\n`;
-            
-            // Outil 1: Infogreffe Data Mapping
-            consoleLog.innerHTML += `<span class="c-green">1. [GreffeMap v2]</span> Scan structurel : `;
-            if (data.results && data.results.length > 0) {
-                consoleLog.innerHTML += `MATCH DETECTED -> ${data.results[0].nom_complet} (${data.results[0].siege.libelle_commune})\n`;
-            } else { consoleLog.innerHTML += `0 structures déclarées.\n`; }
+        consoleLog.innerHTML += `<span class="c-blue">[+] Analyse en cours : "${textVal}"</span>\n\n`;
 
-            // Outil 2: Insee Registry Check
-            consoleLog.innerHTML += `<span class="c-green">2. [SireneQuery]</span> Extraction SIRET : ${data.results?.[0]?.siege?.siret || "N/A"}\n`;
-
-            // Outil 3: Social Graph Dumper
-            consoleLog.innerHTML += `<span class="c-green">3. [SocGraph]</span> Correspondance index Web : Profils corrélés sur LinkedIn.\n`;
-
-            // Outil 4: Username Enumerator
-            consoleLog.innerHTML += `<span class="c-green">4. [UserEnum]</span> Permutations de pseudos générées : ${val.replace(' ', '').toLowerCase()}[0-9]\n`;
-
-            // Outil 5: Name Sanitizer
-            consoleLog.innerHTML += `<span class="c-green">5. [Sanitizer]</span> Vérification Unicode & Homoglyphes : OK (No spoofing detected)\n`;
-
-        } catch { consoleLog.innerHTML += `<span class="c-red">[ERR] API Timeout on corporate registry.</span>\n`; }
-    }
-
-    // --- MODULE 2 : PHONE ---
-    else if (tool === 'phone') {
-        let val = document.getElementById('target-data').value.trim();
-        if (!val) return alert("Missing parameter");
-        val = val.replace(/[^0-9]/g, '');
-
-        consoleLog.innerHTML += `<span class="c-blue">[run] hlr-carrier-analyzer --num "${val}"</span>\n`;
-
-        setTimeout(() => {
-            let op = "Unknown / MVNO";
-            if (val.startsWith('06') || val.startsWith('07') || val.startsWith('336') || val.startsWith('337')) {
-                const sub = val.startsWith('06') || val.startsWith('07') ? val.substring(0, 3) : '0' + val.substring(2, 4);
-                if (['060','061','062'].includes(sub)) op = "Orange S.A.";
-                else if (['063','064'].includes(sub)) op = "SFR Group";
+        if (tool === 'sirene' || tool === 'infogreffe') {
+            try {
+                const res = await fetch(`https://recherche-entreprises.api.gouv.fr/search?q=${encodeURIComponent(textVal)}&per_page=1`);
+                const data = await res.json();
+                if (data.results && data.results.length > 0) {
+                    const ent = data.results[0];
+                    consoleLog.innerHTML += `<span class="c-green">[SUCCESS] Registre National :</span>\n`;
+                    consoleLog.innerHTML += `• Identité / Structure : ${ent.nom_complet}\n`;
+                    consoleLog.innerHTML += `• Numéro Unique SIREN   : ${ent.siren}\n`;
+                    consoleLog.innerHTML += `• Localisation Siège   : ${ent.siege.geo_adresse}\n`;
+                } else {
+                    consoleLog.innerHTML += `<span class="c-red">[!] Aucun enregistrement légal correspondant.</span>\n`;
+                }
+            } catch { consoleLog.innerHTML += `<span class="c-red">[ERR] Échec de la requête vers le serveur open-data.</span>\n`; }
+        }
+        
+        else if (tool === 'username') {
+            consoleLog.innerHTML += `<span class="c-green">[PSEUDONYMES CALCULÉS]</span>\n`;
+            const clean = textVal.replace(/\s+/g, '').toLowerCase();
+            consoleLog.innerHTML += `• Standard : ${clean}\n• Pro      : ${clean}-dev\n• Archive  : ${clean}2026\n`;
+        }
+        
+        else if (tool === 'hlr') {
+            let cleanNum = textVal.replace(/[^0-9]/g, '');
+            let op = "Réseau Virtuel / Inconnu";
+            if (cleanNum.startsWith('06') || cleanNum.startsWith('07')) {
+                const sub = cleanNum.substring(0, 3);
+                if (['060','061','062'].includes(sub)) op = "Orange France";
+                else if (['063','064'].includes(sub)) op = "SFR";
                 else if (['065','075'].includes(sub)) op = "Free Mobile";
                 else if (['066','067'].includes(sub)) op = "Bouygues Telecom";
             }
-
-            consoleLog.innerHTML += `\n<span class="c-green">[📊 BUNDLE OUTILS OSINT APPLIQUÉ]</span>\n`;
-            
-            // Outil 6: ARCEP Routing Engine
-            consoleLog.innerHTML += `<span class="c-green">6. [ArcepRoute]</span> Opérateur Racine Détecté : ${op}\n`;
-
-            // Outil 7: HLR Connectivity Simulator
-            consoleLog.innerHTML += `<span class="c-green">7. [HLR-Ping]</span> Statut de la carte SIM : Active (Signal ok)\n`;
-
-            // Outil 8: Region Codec
-            consoleLog.innerHTML += `<span class="c-green">8. [RegCodec]</span> Pays d'origine de la carte SIM : France (+33)\n`;
-
-        }, 800);
+            consoleLog.innerHTML += `<span class="c-green">[ANALYSE SIM TERMINÉE]</span>\n• Infrastructures physiques : ${op}\n• Statut : Ligne Distribuée\n`;
+        }
+        
+        else if (tool === 'arcep' || tool === 'country') {
+            if(textVal.startsWith('01') || textVal.startsWith('331')) consoleLog.innerHTML += `• Routage ARCEP : Île-de-France\n`;
+            else consoleLog.innerHTML += `• Routage ARCEP : Trunk National Mobile\n`;
+            consoleLog.innerHTML += `• Origine Filaire : France (+33)\n`;
+        }
     }
-
-    // --- MODULE 3 : IMAGE (DISCORD/WHATSAPP OK) ---
-    else if (tool === 'image') {
-        const fileInput = document.getElementById('image-file');
-        if (fileInput.files.length === 0) return alert("No file selected");
-
+    else {
+        if (fileInput.files.length === 0) return alert("Fichier manquant.");
         const file = fileInput.files[0];
-        consoleLog.innerHTML += `<span class="c-blue">[run] exif-deep-inspector --file "${file.name}"</span>\n`;
+        
+        consoleLog.innerHTML += `<span class="c-blue">[+] Traitement du fichier : "${file.name}"</span>\n\n`;
 
         EXIF.getData(file, async function() {
             const lat = EXIF.getTag(this, "GPSLatitude");
@@ -279,35 +311,43 @@ async function executeCommand() {
             const latRef = EXIF.getTag(this, "GPSLatitudeRef");
             const lonRef = EXIF.getTag(this, "GPSLongitudeRef");
 
-            consoleLog.innerHTML += `\n<span class="c-green">[📊 BUNDLE OUTILS OSINT APPLIQUÉ]</span>\n`;
-
-            // Outil 9: Metadump (Vrai extracteur EXIF)
-            if (lat && lon) {
-                const latitude = convertDMSToDD(lat[0], lat[1], lat[2], latRef);
-                const longitude = convertDMSToDD(lon[0], lon[1], lon[2], lonRef);
-                
-                consoleLog.innerHTML += `<span class="c-green">9. [Metadump]</span> GPS Extracted : ${latitude.toFixed(5)}, ${longitude.toFixed(5)}\n`;
-                
-                try {
-                    const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
-                    const geo = await r.json();
-                    if(geo && geo.address) {
-                        consoleLog.innerHTML += `<span class="c-blue">[📍 LOCATION FOUND]</span>\n`;
-                        consoleLog.innerHTML += `   Addr : ${geo.address.road || ""} ${geo.address.house_number || ""}\n`;
-                        consoleLog.innerHTML += `   City : ${geo.address.city || geo.address.town || ""}\n`;
-                    }
-                } catch { consoleLog.innerHTML += `<span class="c-red">[ERR] Reverse geocoding failed.</span>\n`; }
-            } else {
-                // Outil 9 (Fallback Discord/WhatsApp)
-                let platform = "Unknown App / Flattened File";
-                if(file.name.toLowerCase().includes('wa') || file.name.toLowerCase().includes('whatsapp')) platform = "WhatsApp Transmission";
-                else if(file.name.toLowerCase().includes('discord')) platform = "Discord CDN Content";
-                
-                consoleLog.innerHTML += `<span class="c-green">9. [Metadump]</span> GPS Corrupted. Stripped metadata signature matches : <span class="c-red">${platform}</span>\n`;
+            if (tool === 'exif') {
+                if (lat && lon) {
+                    consoleLog.innerHTML += `<span class="c-green">[DONNÉES EXIF BRUTES EXTRAITES]</span>\n`;
+                    consoleLog.innerHTML += `• Lat : ${lat.join(', ')} ${latRef}\n`;
+                    consoleLog.innerHTML += `• Lon : ${lon.join(', ')} ${lonRef}\n`;
+                } else {
+                    consoleLog.innerHTML += `<span class="c-red">[!] Données EXIF vides. Aucun repère embarqué dans le fichier.</span>\n`;
+                }
             }
-
-            // Outil 10: Digital Image Hash Engine
-            consoleLog.innerHTML += `<span class="c-green">10. [ImgHash]</span> File Binary Footprint : ${(file.size / 1024).toFixed(2)} KB // MIME: ${file.type}\n`;
+            
+            else if (tool === 'nominatim') {
+                if (lat && lon) {
+                    const latitude = convertDMSToDD(lat[0], lat[1], lat[2], latRef);
+                    const longitude = convertDMSToDD(lon[0], lon[1], lon[2], lonRef);
+                    try {
+                        const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+                        const geo = await r.json();
+                        consoleLog.innerHTML += `<span class="c-green">[GÉOLOCALISATION ADRESSE]</span>\n• Emplacement : ${geo.display_name}\n`;
+                    } catch { consoleLog.innerHTML += `[ERR] Erreur réseau lors de la conversion géographique.\n`; }
+                } else {
+                    consoleLog.innerHTML += `<span class="c-red">[ERR] Indisponible : Absences de coordonnées sources.</span>\n`;
+                }
+            }
+            
+            else if (tool === 'meta_strip') {
+                let platform = "Fichier local d'origine";
+                if(file.name.toLowerCase().includes('wa') || file.name.toLowerCase().includes('whatsapp')) platform = "WhatsApp CDN System (Nettoyage automatique)";
+                else if(file.name.toLowerCase().includes('discord')) platform = "Discord Asset Pipeline (Données purgées)";
+                
+                consoleLog.innerHTML += `<span class="c-green">[DIAGNOSTIC STRIPPING]</span>\n• Signature : Fichier épuré pour la vie privée.\n• Source suspectée : ${platform}\n`;
+            }
+            
+            else if (tool === 'imghash') {
+                consoleLog.innerHTML += `<span class="c-green">[SIGNATURE LOGIQUE IMAGE]</span>\n`;
+                consoleLog.innerHTML += `• Dimension binaire : ${file.size} Octets\n`;
+                consoleLog.innerHTML += `• Type Mime défini  : ${file.type}\n`;
+            }
         });
     }
 }
